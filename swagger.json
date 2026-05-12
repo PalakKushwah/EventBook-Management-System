@@ -1,0 +1,3032 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Event Management API",
+    "version": "1.0.0",
+    "description": "API documentation for Online Event Management System"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000",
+      "description": "Local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Public"
+    },
+    {
+      "name": "Event"
+    },
+    {
+      "name": "Registration"
+    },
+    {
+      "name": "Admin"
+    }
+  ],
+  "paths": {
+    "/api/auth/signup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "User signup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/api/auth/verifyotp": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Verify OTP",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verified"
+          }
+        }
+      }
+    },
+    "/api/auth/resendotp": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Resend OTP",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP resent successfully"
+          },
+          "400": {
+            "description": "Bad request (missing or invalid email)"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/auth/user/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Attendee (User) login with captcha verification",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or captcha failed"
+          },
+          "401": {
+            "description": "Invalid email, password, or unverified account"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/auth/organizer/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Organizer login with captcha verification",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Organizer login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or captcha failed"
+          },
+          "401": {
+            "description": "Invalid email, password, or unverified account"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password-link": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Send reset link",
+        "requestBody": {
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Link sent"
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password/{id}/{token}": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Confirm reset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset"
+          }
+        }
+      }
+    },
+    "/api/auth/profile": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get user profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "64f1a3c5d23b2c0012345678"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@example.com"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "admin",
+                            "organizer",
+                            "attendee"
+                          ],
+                          "example": "attendee"
+                        },
+                        "image": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "example": "http://localhost:4000/uploads/attendees/avatar.png"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/auth/updateprofile": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Update user profile (name, email, image)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Profile updated"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "64f1a3c5d23b2c0012345678"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@example.com"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "admin",
+                            "organizer",
+                            "attendee"
+                          ],
+                          "example": "attendee"
+                        },
+                        "image": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "example": "http://localhost:4000/uploads/attendees/avatar.png"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email already in use"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Update failed"
+          }
+        }
+      }
+    },
+    "/api/auth/update-password": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Update user password",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "NewStrongPassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Password updated successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Password is required"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Failed to update password"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Logout user and clear cookies",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logged out successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Logout failed"
+          }
+        }
+      }
+    },
+    "/api/public/list": {
+  "get": {
+    "tags": ["Public"],
+    "summary": "List public events",
+    "description": "Returns a paginated list of approved public events, filtered by status, type, category, organizer, or search term.",
+    "parameters": [
+      {
+        "name": "status",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": "upcoming,ongoing"
+        },
+        "description": "Filter by one or more statuses (comma-separated)"
+      },
+      {
+        "name": "type",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": ["online", "offline"],
+          "example": "online"
+        },
+        "description": "Filter by event type"
+      },
+      {
+        "name": "category",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter by category name (case-insensitive)"
+      },
+      {
+        "name": "categoryId",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "objectId"
+        },
+        "description": "Filter by category ID"
+      },
+      {
+        "name": "organizerId",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "objectId"
+        },
+        "description": "Filter by organizer ID"
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Search in event titles or descriptions (case-insensitive)"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1
+        },
+        "description": "Page number for pagination"
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 6,
+          "minimum": 1
+        },
+        "description": "Number of results per page"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Events list fetched successfully",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "total": {
+                  "type": "integer",
+                  "example": 42
+                },
+                "totalPages": {
+                  "type": "integer",
+                  "example": 7
+                },
+                "page": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "limit": {
+                  "type": "integer",
+                  "example": 6
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "format": "objectId"
+                      },
+                      "title": {
+                        "type": "string",
+                        "example": "Tech Conference 2025"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Annual tech gathering"
+                      },
+                      "language": {
+                        "type": "string",
+                        "example": "English"
+                      },
+                      "duration": {
+                        "type": "string",
+                        "example": "2h 30m"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["online", "offline"]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": ["upcoming", "ongoing", "completed"]
+                      },
+                      "approvalStatus": {
+                        "type": "string",
+                        "example": "approved"
+                      },
+                      "image": {
+                        "type": "string",
+                        "example": "/uploads/events/abc123.jpg"
+                      },
+                      "showtimes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "date": {
+                              "type": "string",
+                              "format": "date",
+                              "example": "2025-08-20"
+                            },
+                            "time": {
+                              "type": "string",
+                              "example": "10:00"
+                            },
+                            "location": {
+                              "type": "string",
+                              "example": "New York"
+                            },
+                            "seats": {
+                              "type": "integer",
+                              "example": 100
+                            },
+                            "ticketPrice": {
+                              "type": "number",
+                              "example": 50
+                            }
+                          }
+                        }
+                      },
+                      "organizer": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "format": "objectId"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "John Doe"
+                          }
+                        }
+                      },
+                      "category": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "format": "objectId"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Technology"
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "active"
+                          }
+                        }
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Failed to fetch events",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Failed to fetch events"
+                },
+                "error": {
+                  "type": "string",
+                  "example": "Error message details"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/api/public/categories": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "List active categories",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of active categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "categories": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "64fc12a98f73b9c0e8c6d912"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Technology"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch categories"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Database error details"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/upcoming-events": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get upcoming events",
+        "description": "Returns a limited list of upcoming events, sorted by nearest showtime date.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 4,
+              "minimum": 1,
+              "example": 4
+            },
+            "description": "Maximum number of upcoming events to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upcoming events fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 4
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "format": "objectId"
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "Startup Meetup 2025"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Networking event for entrepreneurs"
+                          },
+                          "image": {
+                            "type": "string",
+                            "example": "/uploads/events/meetup.jpg"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "online",
+                              "offline"
+                            ],
+                            "example": "offline"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "upcoming",
+                              "ongoing",
+                              "completed"
+                            ],
+                            "example": "upcoming"
+                          },
+                          "approvalStatus": {
+                            "type": "string",
+                            "example": "approved"
+                          },
+                          "showtime": {
+                            "type": "object",
+                            "properties": {
+                              "date": {
+                                "type": "string",
+                                "format": "date",
+                                "example": "2025-09-20"
+                              },
+                              "time": {
+                                "type": "string",
+                                "example": "15:00"
+                              },
+                              "location": {
+                                "type": "string",
+                                "example": "San Francisco"
+                              },
+                              "seats": {
+                                "type": "integer",
+                                "example": 200
+                              },
+                              "ticketPrice": {
+                                "type": "number",
+                                "example": 20
+                              }
+                            }
+                          },
+                          "organizer": {
+                            "type": "string",
+                            "example": "Jane Smith"
+                          },
+                          "category": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string",
+                                "format": "objectId"
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "Business"
+                              },
+                              "status": {
+                                "type": "string",
+                                "example": "active"
+                              }
+                            }
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch upcoming events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch upcoming events"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error message details"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/event/{id}": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get event by ID",
+        "description": "Returns a single event with full details, including organizer info, showtimes, category, and meeting link.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "Event ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event details fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "event": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "format": "objectId"
+                        },
+                        "title": {
+                          "type": "string",
+                          "example": "Tech Conference 2025"
+                        },
+                        "description": {
+                          "type": "string",
+                          "example": "Annual tech gathering"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "online"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "upcoming"
+                        },
+                        "language": {
+                          "type": "string",
+                          "example": "English"
+                        },
+                        "duration": {
+                          "type": "string",
+                          "example": "2h 30m"
+                        },
+                        "meetingLink": {
+                          "type": "string",
+                          "example": "https://zoom.us/j/123456789"
+                        },
+                        "image": {
+                          "type": "string",
+                          "example": "/uploads/events/abc123.jpg"
+                        },
+                        "showtimes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string",
+                                "format": "objectId"
+                              },
+                              "date": {
+                                "type": "string",
+                                "format": "date",
+                                "example": "2025-08-20"
+                              },
+                              "time": {
+                                "type": "string",
+                                "example": "10:00"
+                              },
+                              "location": {
+                                "type": "string",
+                                "example": "New York"
+                              },
+                              "seats": {
+                                "type": "integer",
+                                "example": 100
+                              },
+                              "ticketPrice": {
+                                "type": "number",
+                                "example": 50
+                              }
+                            }
+                          }
+                        },
+                        "organizer": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "example": "John Doe"
+                            },
+                            "email": {
+                              "type": "string",
+                              "example": "john@example.com"
+                            }
+                          }
+                        },
+                        "categoryId": {
+                          "type": "string",
+                          "format": "objectId",
+                          "example": "64e1c7f4a2b3c4d5e6f78901"
+                        },
+                        "categoryName": {
+                          "type": "string",
+                          "example": "Technology"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid event ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid event ID format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Event not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch event"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error message details"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/event/{id}/showtimes/{showtimeId}/availability": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Showtime seat availability",
+        "description": "Returns the number of seats available and the list of booked seats for a specific showtime.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "Event ID"
+          },
+          {
+            "name": "showtimeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "Showtime ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Availability data fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "showtimeId": {
+                      "type": "string",
+                      "format": "objectId"
+                    },
+                    "totalSeats": {
+                      "type": "integer",
+                      "example": 100
+                    },
+                    "bookedSeats": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "A1",
+                        "A2",
+                        "B3"
+                      ]
+                    },
+                    "seatsLeft": {
+                      "type": "integer",
+                      "example": 97
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid IDs"
+          },
+          "404": {
+            "description": "Event or showtime not found"
+          },
+          "500": {
+            "description": "Failed to fetch availability"
+          }
+        }
+      }
+    },
+    "/api/public/stats": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Get overall system statistics",
+        "description": "Returns counts for total events, upcoming events, active users, and confirmed registrations.",
+        "responses": {
+          "200": {
+            "description": "Statistics fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalEvents": {
+                      "type": "integer",
+                      "example": 120
+                    },
+                    "upcomingEvents": {
+                      "type": "integer",
+                      "example": 45
+                    },
+                    "activeUsers": {
+                      "type": "integer",
+                      "example": 350
+                    },
+                    "totalRegistrations": {
+                      "type": "integer",
+                      "example": 900
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to compute stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to compute stats"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/event/create": {
+      "post": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "Create a new event",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Tech Conference 2025"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Annual tech gathering"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "online",
+                      "offline"
+                    ],
+                    "example": "offline"
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "example": "64fc12a98f73b9c0e8c6d912"
+                  },
+                  "language": {
+                    "type": "string",
+                    "example": "English"
+                  },
+                  "duration": {
+                    "type": "string",
+                    "example": "2h 30m"
+                  },
+                  "meetingLink": {
+                    "type": "string",
+                    "description": "Required only for online events",
+                    "example": "https://meet.google.com/abc-xyz"
+                  },
+                  "showtimes": {
+                    "type": "string",
+                    "description": "JSON string of showtimes. Example: '[{\"date\":\"2025-08-20\",\"time\":\"10:00\",\"location\":\"New York\",\"seats\":100,\"ticketPrice\":50}]'"
+                  },
+                  "eventImage": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Optional event image file"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "type",
+                  "categoryId",
+                  "language",
+                  "duration",
+                  "showtimes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created successfully"
+          },
+          "400": {
+            "description": "Validation error or invalid showtimes format"
+          },
+          "500": {
+            "description": "Failed to create event"
+          }
+        }
+      }
+    },
+    "/api/event/update/{id}": {
+      "put": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "Update event",
+        "description": "Update an existing event. Only the event organizer or admin can update. Offline events require location and seats in showtimes; online events require a meeting link.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "Event ID"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Updated Event Title"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Updated event description"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "online",
+                      "offline"
+                    ],
+                    "description": "If changed to online, meetingLink is required. If changed to offline, each showtime must include location and seats."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "upcoming",
+                      "ongoing",
+                      "completed"
+                    ],
+                    "example": "ongoing"
+                  },
+                  "language": {
+                    "type": "string",
+                    "example": "English"
+                  },
+                  "duration": {
+                    "type": "string",
+                    "example": "2h 30m"
+                  },
+                  "meetingLink": {
+                    "type": "string",
+                    "description": "Required only if type is online",
+                    "example": "https://zoom.us/j/1234567890"
+                  },
+                  "showtimes": {
+                    "type": "string",
+                    "description": "JSON array of showtimes. For offline events: include date, time, ticketPrice, location, seats. For online events: include date, time, ticketPrice.",
+                    "example": "[{\"date\":\"2025-08-20\",\"time\":\"10:00\",\"ticketPrice\":50,\"location\":\"New York\",\"seats\":100}]"
+                  },
+                  "eventImage": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Optional new event image file"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event updated successfully"
+          },
+          "400": {
+            "description": "Invalid event ID or bad showtimes format"
+          },
+          "403": {
+            "description": "Not authorized to update this event"
+          },
+          "404": {
+            "description": "Event not found"
+          },
+          "500": {
+            "description": "Update failed"
+          }
+        }
+      }
+    },
+    "/api/event/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "Delete event (soft delete)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event deleted successfully"
+          },
+          "403": {
+            "description": "Not authorized to delete this event"
+          },
+          "404": {
+            "description": "Event not found"
+          },
+          "500": {
+            "description": "Delete failed"
+          }
+        }
+      }
+    },
+    "/api/event/my-events": {
+      "get": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "List my events",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "upcoming",
+                "ongoing",
+                "completed"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "online",
+                "offline"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of organizer's events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 12
+                    },
+                    "page": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "example": 10
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "64f1a9b1c3e5a1234567890a"
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "React Workshop"
+                          },
+                          "showtimes": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "date": {
+                                  "type": "string",
+                                  "format": "date",
+                                  "example": "2025-09-10"
+                                },
+                                "time": {
+                                  "type": "string",
+                                  "example": "14:30"
+                                },
+                                "location": {
+                                  "type": "string",
+                                  "example": "Mumbai Hall A"
+                                }
+                              }
+                            }
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "upcoming"
+                          },
+                          "type": {
+                            "type": "string",
+                            "example": "online"
+                          },
+                          "image": {
+                            "type": "string",
+                            "example": "uploads/event1.jpg"
+                          },
+                          "approvalStatus": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "approved",
+                              "declined"
+                            ],
+                            "example": "pending"
+                          },
+                          "message": {
+                            "type": "string",
+                            "example": "Waiting for admin approval"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2025-09-01T10:00:00.000Z"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2025-09-01T12:00:00.000Z"
+                          },
+                          "organizerName": {
+                            "type": "string",
+                            "example": "John Doe"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid organizer ID"
+          },
+          "500": {
+            "description": "Failed to fetch organizer's events"
+          }
+        }
+      }
+    },
+    "/api/event/organizer/stats": {
+      "get": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "Get organizer statistics",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organizer stats fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "totalEvents": {
+                      "type": "integer",
+                      "example": 15
+                    },
+                    "upcomingEvents": {
+                      "type": "integer",
+                      "example": 5
+                    },
+                    "totalRegistrations": {
+                      "type": "integer",
+                      "example": 120
+                    },
+                    "revenue": {
+                      "type": "number",
+                      "example": 4500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid organizer ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid organizer ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch stats"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/event/summary/{eventId}": {
+      "get": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "Showtime summary (organizer only)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Showtime summary retrieved successfully"
+          },
+          "404": {
+            "description": "Event not found or unauthorized"
+          },
+          "500": {
+            "description": "Failed to get showtime summary"
+          }
+        }
+      }
+    },
+    "/api/event/{eventId}/registrations": {
+      "get": {
+        "tags": [
+          "Event"
+        ],
+        "summary": "List registrations for an event (organizer/admin)",
+        "description": "Returns a list of registrations for a given event. Only accessible by the event organizer or admin.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "ID of the event"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of registrations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "eventId": {
+                      "type": "string",
+                      "example": "64f0b1c4e1234567890abcdef"
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 5
+                    },
+                    "registrations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "64f0b2c4e1234567890abcdef"
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "confirmed"
+                          },
+                          "seatsBooked": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": [
+                              "A1",
+                              "A2"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2025-09-12T15:30:00.000Z"
+                          },
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string",
+                                "example": "64f0a1c4e1234567890abcdef"
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "John Doe"
+                              },
+                              "email": {
+                                "type": "string",
+                                "example": "john@example.com"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid event ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid event ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden (not admin or organizer)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Forbidden"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Event not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch registrations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch registrations"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events/{id}/register": {
+      "post": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "Register for an online event",
+        "description": "Registers the authenticated user for an online event. Automatically generates one e-ticket with meeting link and sends it via email.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "Event ID"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Online registration successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Online registration successful"
+                    },
+                    "registration": {
+                      "type": "object",
+                      "description": "Registration document"
+                    },
+                    "tickets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "Generated ticket document"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Event is not open for registration"
+          },
+          "404": {
+            "description": "Event not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/events/{id}/showtimes/{showtimeId}/register": {
+      "post": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "Register for an offline event showtime",
+        "description": "Registers the authenticated user for a specific showtime of an offline event. Seats must be provided and will be validated against availability. Each booked seat generates a unique e-ticket.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "Event ID"
+          },
+          {
+            "name": "showtimeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "Showtime ID of the offline event"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "seatsBooked": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "A1",
+                      "A2"
+                    ]
+                  }
+                },
+                "required": [
+                  "seatsBooked"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Offline registration successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Offline registration successful"
+                    },
+                    "registration": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "eventId": {
+                          "type": "string"
+                        },
+                        "userId": {
+                          "type": "string"
+                        },
+                        "showtimeId": {
+                          "type": "string"
+                        },
+                        "seatsBooked": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    },
+                    "tickets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string"
+                          },
+                          "registrationId": {
+                            "type": "string"
+                          },
+                          "eventId": {
+                            "type": "string"
+                          },
+                          "showtimeId": {
+                            "type": "string"
+                          },
+                          "seatNumber": {
+                            "type": "string"
+                          },
+                          "eTicketId": {
+                            "type": "string"
+                          },
+                          "ticketPrice": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "issuedDate": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid seat selection or not enough seats available"
+          },
+          "404": {
+            "description": "Event or showtime not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/tickets/{ticketId}/download": {
+      "get": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "Download ticket PDF",
+        "description": "Download the e-ticket as a PDF for the given ticket ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "Ticket ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF file",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket or event not found"
+          },
+          "500": {
+            "description": "Failed to generate PDF"
+          }
+        }
+      }
+    },
+    "/api/booked-seats/{eventId}/{showtimeId}": {
+      "get": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "Fetch booked seats for a specific event and showtime",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "ID of the event"
+          },
+          {
+            "name": "showtimeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "objectId"
+            },
+            "description": "ID of the showtime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of booked seats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "bookedSeats": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "A1",
+                        "A2",
+                        "B3"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch booked seats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to fetch booked seats"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events/mybookings": {
+      "get": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "Get all bookings for the logged-in user",
+        "description": "Fetches all event registrations for the authenticated user, including event details, tickets, and the specific showtime booked.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of user bookings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "registrations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "example": "64f2a92e9f3b1c7e1c8e91b2"
+                          },
+                          "eventId": {
+                            "type": "string",
+                            "example": "64f2a7c59f3b1c7e1c8e9189"
+                          },
+                          "userId": {
+                            "type": "string",
+                            "example": "64f29e4a9f3b1c7e1c8e90dd"
+                          },
+                          "showtimeId": {
+                            "type": "string",
+                            "example": "64f2a8d19f3b1c7e1c8e91a7"
+                          },
+                          "seatsBooked": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": [
+                              "A1",
+                              "A2",
+                              "A3"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "confirmed",
+                              "cancelled"
+                            ],
+                            "example": "confirmed"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2025-09-03T12:34:56.000Z"
+                          },
+                          "event": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string",
+                                "example": "Tech Conference 2025"
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": "Annual tech summit"
+                              },
+                              "type": {
+                                "type": "string",
+                                "example": "offline"
+                              },
+                              "language": {
+                                "type": "string",
+                                "example": "English"
+                              },
+                              "duration": {
+                                "type": "string",
+                                "example": "3 hours"
+                              },
+                              "status": {
+                                "type": "string",
+                                "example": "upcoming"
+                              }
+                            }
+                          },
+                          "showtime": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string"
+                              },
+                              "date": {
+                                "type": "string",
+                                "format": "date",
+                                "example": "2025-09-10"
+                              },
+                              "time": {
+                                "type": "string",
+                                "example": "18:30"
+                              },
+                              "location": {
+                                "type": "string",
+                                "example": "New York Convention Center"
+                              },
+                              "ticketPrice": {
+                                "type": "number",
+                                "example": 499
+                              }
+                            }
+                          },
+                          "tickets": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "_id": {
+                                  "type": "string"
+                                },
+                                "seatNumber": {
+                                  "type": "string",
+                                  "example": "A1"
+                                },
+                                "qrCode": {
+                                  "type": "string",
+                                  "example": "qrcode123.png"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - No valid token provided"
+          },
+          "500": {
+            "description": "Server error - Failed to fetch bookings"
+          }
+        }
+      }
+    },
+    "/api/events/{registrationId}/cancel": {
+      "post": {
+        "tags": [
+          "Registration"
+        ],
+        "summary": "Cancel booking",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "registrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cancelled"
+          }
+        }
+      }
+    },
+    "/api/admin/stats": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Dashboard stats",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/charts/registrations-by-day": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Registrations by day",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 14
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/charts/revenue-by-category": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Revenue by category",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/charts/events-by-type": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Events by type",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-access-token"
+      }
+    },
+    "schemas": {
+      "SignupRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "attendee",
+              "organizer"
+            ]
+          }
+        }
+      },
+      "VerifyOtpRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "otp"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "otp": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "strongPassword123"
+          },
+          "captchaToken": {
+            "type": "string",
+            "example": "03AFcWeA..."
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "captchaToken"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "default": false
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "organizer",
+              "attendee"
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "default": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Showtime": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "time": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "seats": {
+            "type": "integer"
+          },
+          "ticketPrice": {
+            "type": "number"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "organizerId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline"
+            ]
+          },
+          "language": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "showtimes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Showtime"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "upcoming",
+              "ongoing",
+              "completed"
+            ],
+            "default": "upcoming"
+          },
+          "approvalStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "declined"
+            ],
+            "default": "pending"
+          },
+          "meetingLink": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "default": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Registration": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "showtimeId": {
+            "type": "string"
+          },
+          "seatsBooked": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "cancelled"
+            ],
+            "default": "pending"
+          },
+          "bookedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "default": "active"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Otp": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "otp": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Ticket": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "registrationId": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eTicketId": {
+            "type": "string"
+          },
+          "seatNumber": {
+            "type": "string"
+          },
+          "showtimeId": {
+            "type": "string"
+          },
+          "ticketPrice": {
+            "type": "number"
+          },
+          "issuedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "used",
+              "cancelled"
+            ],
+            "default": "valid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
